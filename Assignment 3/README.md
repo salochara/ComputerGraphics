@@ -1,27 +1,21 @@
-# A2 3d Figures
+# A3 3d Math
 
-Assignment No 2 for the computer graphics course. Modify previous code examples to render the following:
+Assignment No 3 for the computer graphics course. 
 
-- A 3D pyramid with a pentagon base as in Figure 1. The pyramid has to rotate around the axis [0.1, 1.0, 0.2].
-- A [Dodecahedron](https://en.wikipedia.org/wiki/Regular_dodecahedron), as in Figure 2. It has to rotate around the axis [-0.4, 1.0, 0.1], and around the axis [0.0, 1.0, 0,0].
-- An Octahedron, as in Figure 3. It has to rotate around the axis [0, 1, 0]; it also has to move up and down within the canvas: it moves up until it reaches the top of the canvas, then it moves down until it reaches the bottom, and then it repeats.
+After reading the files 'cghomogen.pdf' and 'Fundamentals-of-Computer-Graphics-Transformations-Viewing.pdf', create your own version of the gl-matrix library. 
+
+Particularly, implement the mat4 and vec3 classes, and all the methods needed for the mat4 class to be used instead of the gl-matrix library.
+
+Test your library in the previous assignment (A2 3d Figures).
 
 **Rubric:**
 
-1. The canvas was adjusted to include the 3 figures. The pyramid at the left of the canvas, the dodecahedron at the center, and the octahedron at the right.
-2. Created an independent function for each figure.
-3. Defined the vertex, color, and index information for each figure.
-4. Each face of each figure was rendered with a different color.
-5. The figures were transformed correctly.
-
-**Deadline: 01/02/2019 1:00pm**
-
-
-<img src="Images/Pyramid.png" width="300">
-<br/>Figure 1: 3D Pyramid.<br/>
-
-<img src="Images/Dodecahedron.jpg" width="500">
-<br/>Figure 2: 3D Dodecahedron.<br/>
-
-<img src="Images/Octahedron.jpg" width="300">
-<br/>Figure 3: 3D Octahedron.
+1. mat4 class has, at least, the following methods:
+    1. create
+    2. perspective
+    3. translate
+    4. rotate
+2. mat4 methods behave as expected.
+3. vec3 has the attributes and methods needed to work with the mat4 class.
+4. Tested the library in A2 3d Figures.
+5. Uploaded the library and the modified assignment.
