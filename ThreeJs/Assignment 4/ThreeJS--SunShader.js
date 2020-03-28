@@ -19,10 +19,6 @@ function animate()
     let deltat = now - currentTime;
     currentTime = now;
     let fract = deltat / duration;
-    let angle = Math.PI * 2 * fract;
-
-    sphere.rotation.y += angle;
-    sphere.rotation.x += angle;
 
     uniforms.time.value += fract;
 }
@@ -52,7 +48,7 @@ function createScene(canvas)
     scene.background = new THREE.Color(0.164, 0.152, 0.152);
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
-    camera.position.z = 10;
+    camera.position.z = 3.5;
     scene.add(camera);
     
     // Add a directional light to show off the object
@@ -65,16 +61,16 @@ function createScene(canvas)
     sphereGroup = new THREE.Object3D;
     
     let GLOWMAP = new THREE.TextureLoader().load("../images/sun_texture.jpg");
-    let NOISEMAP = new THREE.TextureLoader().load("../images/noisy-texture2.png");
+    let NOISEMAP = new THREE.TextureLoader().load("../images/noise.png");
     uniforms = 
     {
         time: { type: "f", value: 0.2 },
         noiseTexture: { type: "t", value: NOISEMAP },
-        glowTexture: { type: "t", value: GLOWMAP }
+        lavaTexture: { type: "t", value: GLOWMAP }
     };
 
     uniforms.noiseTexture.value.wrapS = uniforms.noiseTexture.value.wrapT = THREE.RepeatWrapping;
-    uniforms.glowTexture.value.wrapS = uniforms.glowTexture.value.wrapT = THREE.RepeatWrapping;
+    uniforms.lavaTexture.value.wrapS = uniforms.lavaTexture.value.wrapT = THREE.RepeatWrapping;
 
     let material = new THREE.ShaderMaterial({
         uniforms: uniforms,

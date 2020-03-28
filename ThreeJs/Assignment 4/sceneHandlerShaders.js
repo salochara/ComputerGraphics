@@ -1,28 +1,10 @@
 let mouseDown = false,
 pageX = 0;
 
-function rotateScene(deltax, group)
-{
-    group.rotation.y += deltax / 100;
-    $("#rotation").html("rotation: 0," + cubeGroup.rotation.y.toFixed(2) + ",0");
-}
-
 function scaleScene(scale, group)
 {
     group.scale.set(scale, scale, scale);
     $("#scale").html("scale: " + scale);
-}
-    
-function onMouseMove(evt, group)
-{
-    if (!mouseDown)
-        return;
-
-    evt.preventDefault();
-    
-    let deltax = evt.pageX - pageX;
-    pageX = evt.pageX;
-    rotateScene(deltax, group);
 }
 
 function onMouseDown(evt)
@@ -42,7 +24,6 @@ function onMouseUp(evt)
 
 function addMouseHandler(canvas, group)
 {
-    canvas.addEventListener( 'mousemove', e => onMouseMove(e, group), false );
     canvas.addEventListener( 'mousedown', e => onMouseDown(e), false );
     canvas.addEventListener( 'mouseup', e => onMouseUp(e), false );
 
