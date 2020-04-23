@@ -1,0 +1,229 @@
+var renderer = null,
+    scene = null,
+    camera = null,
+    controls = null,
+    planetGroup = null,
+    jupiterGroup = null,
+    earthGroup = null,
+    moonGroup = null,
+    planet = null,
+    root = null,
+    materials = {},
+    textureOn = true,
+    duration = 30000,
+    currentTime = Date.now(),
+    textureMap = null,
+    bumpMap = null,
+    materialName = "phong-normal",
+    normalMapOn = true,
+    mercuryMoon = null,
+    jupiterMoonGroup = null,
+    moon = null,
+    sun = null, mercury = null, venus = null, earth = null, mars = null, jupiter = null, saturn = null, uranus = null, neptune = null;
+
+
+class SphereObj {
+    constructor(x,y,z,radius, textureUrl, bumpMapUrl, materialName) {
+        // create materials with it's texture map
+        this.materials = {};
+        this.materialName = materialName;
+        this.textureMap = new THREE.TextureLoader().load(textureUrl);
+        this.createMaterials(this.textureMap);
+        // load bump map if it has one
+        this.bumpMap = new THREE.TextureLoader().load(bumpMapUrl);
+        // create sphere of radius size
+        this.geometry = new THREE.SphereGeometry(radius, 20, 20);
+        // create sphere mesh
+        this.sphere = new THREE.Mesh(this.geometry, this.materials[this.materialName]);
+        // set the sphere's position
+        this.sphere.position.set(x,y,z);
+    }
+
+    createMaterials(textureMap) {
+        // we only need basic-textured for the sun and lambert-textured for planets and lamberd textured for others
+        this.materials["basic-textured"] = new THREE.MeshBasicMaterial({ map: textureMap });
+        this.materials["lambert-textured"] = new THREE.MeshLambertMaterial({ map: textureMap });
+    }
+};
+
+// class Moon extends SphereObj {
+//     constructor(x,y,z,radius, textureUrl, bumpMapUrl, materialName, parentZ) {
+//         super(x,y,z,radius, textureUrl, bumpMapUrl, materialName);
+//         this.orbitGeometry = new THREE.RingGeometry( Math.abs(z) - Math.abs(parentZ), Math.abs(z) - Math.abs(parentZ) + 0.02, 32 );
+//         this.orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+//         this.orbitRing = new THREE.Mesh( this.orbitGeometry, this.orbitMaterial );
+//         this.orbitRing.position.set(0, 0, parentZ);
+//         this.orbitRing.rotation.x = Math.PI / 2;
+
+//     }
+// }
+
+class Planet extends SphereObj {
+    constructor(x,y,z,radius, textureUrl, bumpMapUrl, materialName, moon=null) {
+        super(x,y,z,radius, textureUrl, bumpMapUrl, materialName);
+        // this.group = new THREE.Object3D;
+        this.z = z;
+        this.radius = radius;
+
+        //planet orbit
+        this.orbitGeometry = new THREE.RingGeometry( Math.abs(z), Math.abs(z)+0.02, 32 );
+        this.orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+        this.orbitRing = new THREE.Mesh( this.orbitGeometry, this.orbitMaterial );
+        this.orbitRing.position.set(0, 0, 0);
+        this.orbitRing.rotation.x = Math.PI / 2;
+
+        // this.group.add(this.sphere);
+        scene.add( this.orbitRing );
+    }
+}
+
+function animate() {
+    var now = Date.now();
+    var deltat = now - currentTime;
+    currentTime = now;
+    var fract = deltat / duration;
+    var angle = Math.PI * 2 * fract;
+
+    // Rotate the sphere group about its Y axis
+    planetGroup.rotation.y += angle;
+    moonGroup.rotation.y += angle;
+    mercury.sphere.rotation.y += angle*5;
+    venus.sphere.rotation.y += angle*5;
+    earth.sphere.rotation.y += angle*5;
+    mars.sphere.rotation.y += angle*5;
+    jupiter.sphere.rotation.y += angle*5;
+    saturn.sphere.rotation.y += angle*5;
+    uranus.sphere.rotation.y += angle*5;
+    neptune.sphere.rotation.y += angle*5;
+    moon.sphere.rotation.y += angle*10;
+}
+
+function run() {
+
+    requestAnimationFrame( run );
+
+    // required if controls.enableDamping or controls.autoRotate are set to true
+    controls.update();
+
+    renderer.render( scene, camera );
+
+    animate();
+}
+
+function createScene(canvas) {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setSize( canvas.width, canvas.height );
+
+    scene = new THREE.Scene();
+
+    var stars = new THREE.TextureLoader().load("./stars2.jpg");
+
+    scene.background = stars;
+
+    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 10000 );
+
+    controls = new THREE.OrbitControls( camera, renderer.domElement );
+    //controls.update() must be called after any manual changes to the camera's transform
+    camera.position.set( 150, 130, -280 );
+    controls.update();
+
+    // Create all the materials
+    createMaterials();
+
+    // Create a group to hold all the objects
+    solarSystemGroup = new THREE.Object3D;
+    planetGroup = new THREE.Object3D;
+
+    // Add a directional light to show off the objects
+    var light = new THREE.PointLight( 0xffffff, 10, 0 );
+    light.position.set( 0, 30, 0 );
+    scene.add( light );
+
+    // create the sun and the planets
+    sun = new SphereObj(0,0,0,47.25,'../images/sun.jpg','','basic-textured');
+    mercury = new Planet(0,0,-60,0.38,"../images/mercury.jpg","../images/mercury_bump.jpg","lambert-textured");
+    venus = new Planet(0,0,120,0.95,"../images/venus.jpg","../images/venus_bump.jpg", "lambert-textured");
+    earth = new Planet(0,0,-180,10,"../images/earth.jpg","../images/earth_bump.jpg","lambert-textured");
+    mars = new Planet(0,0,240,0.53,"../images/mars.jpg","../images/mars_bump.jpg","lambert-textured");
+    jupiter = new Planet(0,0,-300,11.20,"../images/jupiter.jpg","","lambert-textured");
+    saturn = new Planet(0,0,360,9.45,"../images/saturn.jpg","","lambert-textured");
+    uranus = new Planet(0,0,-420,4,"../images/uranus.jpg","","lambert-textured");
+    neptune = new Planet(0,0,480,3.88,"../images/neptune.jpg","","lambert-textured");
+
+    // saturn ring
+    let ringSize = 12;
+    let ringGeometry = new THREE.RingGeometry( ringSize, ringSize + 7, 32 );
+    let greyTexture = new THREE.TextureLoader().load('../images/saturnringpattern.gif');
+    let ringTexture = new THREE.TextureLoader().load('../images/saturnring.jpg');
+    let ringMaterial = new THREE.MeshPhongMaterial({ map: ringTexture,side: THREE.DoubleSide,transparent: true,opacity:1,alphaMap: greyTexture});
+    let saturnRing = new THREE.Mesh( ringGeometry, ringMaterial );
+    saturnRing.position.set(0, 0, 0);
+    saturnRing.rotation.x = Math.PI / 2;
+    saturn.sphere.add(saturnRing);
+
+    // Creating Moon
+    // moon orbit
+    let orbitSize = 20;
+    let orbitGeometry = new THREE.RingGeometry( orbitSize, orbitSize + 0.02, 32 );
+    let orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+    let orbitRing = new THREE.Mesh( orbitGeometry, orbitMaterial );
+    orbitRing.position.set(0, 0, 0);
+    orbitRing.rotation.x = Math.PI / 2;
+
+    // create the moon
+    moonGroup = new THREE.Object3D;
+    moon = new SphereObj(0,0,orbitSize,earth.radius/2,'../images/moon.jpg','../images/moon_bump.jpg','lambert-textured');
+    moonGroup.add(moon.sphere);
+    moonGroup.add(orbitRing);
+    earth.sphere.add(moonGroup);
+
+    //load obj file
+    var loader = new THREE.OBJLoader();
+
+    loader.load('../models/millenium-falcon/millenium-falcon.obj', (object) => {
+        scene.add( object );
+    });
+
+
+    // Jupiter Moons
+    // let orbitSize2 = jupiter.radius * 3;
+    // let orbitGeometry2 = new THREE.RingGeometry( orbitSize2, orbitSize2 + 0.02, 32 );
+    // let orbitMaterial2 = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+    // let orbitRing2 = new THREE.Mesh( orbitGeometry2, orbitMaterial2 );
+    // orbitRing2.position.set(0, 0, 0);
+    // orbitRing2.rotation.x = Math.PI / 2;
+    // jupiterMoonGroup = new THREE.Object3D;
+    // let ganymede = new SphereObj(0,0,orbitSize2,jupiter.radius/2,'../images/moon.jpg','../images/moon_bump.jpg','lambert-textured');
+    // jupiterMoonGroup.add(moon.sphere);
+    // jupiterMoonGroup.add(orbitRing2);
+    // jupiter.sphere.add(jupiterMoonGroup);
+
+    // Add the cube mesh to our group
+    solarSystemGroup.add( sun.sphere );
+    planetGroup.add( mercury.sphere );
+    planetGroup.add( venus.sphere );
+    planetGroup.add( earth.sphere );
+    planetGroup.add( mars.sphere );
+    planetGroup.add( jupiter.sphere );
+    planetGroup.add( saturn.sphere );
+    planetGroup.add( uranus.sphere );
+    planetGroup.add( neptune.sphere );
+
+    solarSystemGroup.add(planetGroup);
+    scene.add( solarSystemGroup );
+}
+
+function createMaterials(mapUrl)
+{
+    // Create a textre phong material for the cube
+    // First, create the texture map
+    textureMap = new THREE.TextureLoader().load(mapUrl);
+
+    materials["line-basic"] = new THREE.LineBasicMaterial({color:0xffffff});
+    materials["basic"] = new THREE.MeshBasicMaterial();
+    materials["phong"] = new THREE.MeshPhongMaterial();
+    materials["lambert"] = new THREE.MeshLambertMaterial();
+    materials["basic-textured"] = new THREE.MeshBasicMaterial({ map: textureMap });
+    materials["phong-textured"] = new THREE.MeshPhongMaterial({ map: textureMap });
+    materials["lambert-textured"] = new THREE.MeshLambertMaterial({ map: textureMap });
+}
