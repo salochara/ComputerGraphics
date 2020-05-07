@@ -65,7 +65,7 @@ function createSceneSetup(canvas)
     ambientLight = new THREE.AmbientLight ( 0xffffff, 0.5 );
     root.add(ambientLight);
 
-    // Create a group to hold the spheres
+    // Create a group to hold all the spheres
     group = new THREE.Object3D;
     root.add(group);
 

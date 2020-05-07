@@ -104,6 +104,7 @@ function initControls()
     });
 
     let ambientHex = "#ffffff";
+
     $('#ambient').ColorPickerSetColor(ambientHex);
     $('#ambient div').css( "background-color", ambientHex );
 
