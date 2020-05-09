@@ -12,7 +12,6 @@ let spotLight = null;
 let ambientLight = null;
 let SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 2048;
 let insect = null
-let insects = [];
 let animation;
 let gameOver = false;
 let floorUrl = "Images/checker_large.gif";
@@ -23,7 +22,7 @@ let id = 0;
 let keyFrameAnimator = new KF.KeyFrameAnimator();
 let timerInterval;
 let cloningInterval;
-
+let insects = [];
 /************************************************************/
 // GAME SETTING; Can be modified
 let gameDuration = 60;
@@ -31,7 +30,7 @@ let gameDuration = 60;
 let leftSideMost = -80, rightSideMost = 80;
 let farthest = -220, closest = -180;
 /* For insect creation*/
-let timeoutInsectCreation = 6000; // In ms
+let timeoutInsectCreation = 3000; // In ms
 let deadLine = 100; // In (z)
 let lives = 3;
 
@@ -42,30 +41,31 @@ async function loadFBX()
     let loader = promisifyLoader(new THREE.FBXLoader());
 
     try{
-        let object = await loader.load( './Models/Robot/robot_run.fbx');
+        let object = await loader.load( './Models/Spider_FBX/Spider.fbx');
+
         object.mixer = new THREE.AnimationMixer( scene );
         let action = object.mixer.clipAction( object.animations[ 0 ], object );
         object.animations[ 0 ].name = "run";
-        object.scale.set(0.03, 0.03, 0.03);
+        object.scale.set(0.2, 0.2, 0.2);
         // Starts at the far end
-        object.position.z = farthest;
         object.name = "insect";
 
-        // For displaying the object correctly. "Standing"
-        object.rotation.x += 90;
+
+        console.log(object.position);
+        object.position.z = 70;
+
 
         action.play();
+
+
         object.traverse( function ( child ) {
             if ( child.isMesh ) {
                 child.castShadow = true;
                 child.receiveShadow = true;
             }
         } );
+
         insect = object;
-        // Push to insects for animation to be called in animate()
-        insects.push(insect);
-        // Add to scene
-        scene.add( insect );
 
         initDeadAnimation();
     }
@@ -91,13 +91,13 @@ function onDocumentMouseDown(event)
     raycaster.setFromCamera( mouse, camera );
 
 
-    let intersects = raycaster.intersectObjects( insects, true);
-
+    let intersects = raycaster.intersectObjects( insects );
+    console.log(" here " + insects);
     if ( intersects.length > 0 )
     {
         CLICKED = intersects[ intersects.length - 1 ].object;
-        // console.log(CLICKED);
-        if(intersects[0].object.name === "Robot1")
+        console.log(CLICKED);
+        if(intersects[0].object.name === "Spider")
         {
             console.log("yes, hit!");
             console.log(intersects)
@@ -106,7 +106,6 @@ function onDocumentMouseDown(event)
             triggerDeadAnimation(CLICKED);
             console.log(CLICKED)
             CLICKED.material.emissive.setHex( 0xfffff );
-
         }
     }
     else
@@ -138,6 +137,7 @@ function initDeadAnimation() {
 function triggerDeadAnimation(obj)
 {
     keyFrameAnimator.start();
+
     obj.rotation.x = -Math.PI/2
     obj.position.y = -0
     obj.dead = true;
@@ -160,7 +160,6 @@ function actualCloning()
     newInsect.position.x = randomIntFromInterval(leftSideMost,rightSideMost);
     newInsect.position.y = 0;
     newInsect.position.z = randomIntFromInterval(farthest,closest);
-    newInsect.rotation.x += 90;
 
     newInsect.id = id++;
 
@@ -222,7 +221,9 @@ function resetGame() {
     insects = [];
     gameOver = false;
     lives = 3;
+    gameDuration = 60;
     document.getElementById("lives").innerHTML = `Lives: ${lives}`;
+    document.getElementById("playButton").innerHTML = `Play again!`;
     window.clearInterval(timerInterval);
     window.clearInterval(cloningInterval);
 }
@@ -230,7 +231,7 @@ function resetGame() {
 // Set timer og the game. Can be easily changed by changing the global variable "gameDuration"
 function setTimer()
 {
-    let countDownDate = new Date();
+   /* let countDownDate = new Date();
     countDownDate.setSeconds(countDownDate.getSeconds() + gameDuration);
     timerInterval = setInterval(function() {
         let distance = countDownDate - currentTime;
@@ -244,7 +245,7 @@ function setTimer()
             gameOver = true;
             resetGame();
         }
-    }, 1000);
+    }, 1000);*/
 }
 
 // Starts game. Activated when clicking the play button in the HTML
